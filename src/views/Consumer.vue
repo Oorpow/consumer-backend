@@ -5,9 +5,12 @@
 				<el-date-picker
 					v-model="timeRange"
 					type="datetimerange"
+					:picker-options="pickerOptions"
 					range-separator="至"
 					start-placeholder="开始日期"
 					end-placeholder="结束日期"
+					@change="handleTimePick"
+					align="right"
 				>
 				</el-date-picker>
 				<div class="right-block">
@@ -18,17 +21,30 @@
 				</div>
 			</div>
 		</div>
-		<custom-table :tableData="tableData" :columnList="columnList">
-			<template #operation="{ rowData }">
-				<el-button size="mini" @click="handleEdit(rowData)">编辑</el-button>
-				<el-button size="mini" type="danger" @click="handleDelete(rowData)">删除</el-button>
-			</template>
-		</custom-table>
+		<custom-table
+			:tableData="tableData"
+			:columnList="columnList"
+			:showOperationColumn="false"
+		></custom-table>
+		<div class="pagination-container">
+			<el-pagination
+				background
+				layout="total, sizes, prev, pager, next"
+				:page-sizes="[5, 10]"
+				:total="100"
+				@size-change="handleSizeChange"
+				@current-change="handleCurrentChange"
+			>
+			</el-pagination>
+		</div>
 	</div>
 </template>
 
 <script>
+import { mapActions } from 'vuex'
 import CustomTable from '@/components/CustomTable/CustomTable.vue'
+
+import { formatTimeStamp } from '@/utils/formatTimeStamp'
 
 export default {
 	name: 'Consumer',
@@ -37,10 +53,25 @@ export default {
 	},
 	data() {
 		return {
-			timeRange: [
-				new Date(2000, 10, 10, 10, 10),
-				new Date(2000, 10, 11, 10, 10),
-			],
+			timeRange: '',
+			startTime: 0,
+			endTime: 0,
+			pickerOptions: {
+				shortcuts: [
+					{
+						text: '最近一周',
+						onClick(picker) {
+							const end = new Date()
+							const start = new Date()
+							start.setTime(
+								start.getTime() - 3600 * 1000 * 24 * 7
+							)
+							picker.$emit('pick', [start, end])
+							console.log(123)
+						},
+					},
+				],
+			},
 			tableData: [
 				{
 					date: '2016-05-03',
@@ -83,13 +114,44 @@ export default {
 				{ column: 'name', label: '姓名' },
 				{ column: 'address', label: '地址' },
 			],
+			pageSize: 5,
+			pageNum: 1,
 		}
+	},
+	computed: {
+		...mapActions(['getConsumerList']),
 	},
 	methods: {
 		handleEdit(row) {
 			console.log(row)
-		}
-	}
+		},
+		handleTimePick() {
+			const startTime = formatTimeStamp(this.timeRange[0])
+			const endTime = formatTimeStamp(this.timeRange[1])
+			this.startTime = startTime
+			this.endTime = endTime
+		},
+		// 分页条数
+		handleSizeChange(val) {
+			this.pageSize = val
+			this.$store.dispatch('getConsumerList', {
+				pageNum: this.pageNum,
+				pageSize: this.pageSize,
+				startTime: this.startTime,
+				endTime: this.endTime
+			})
+		},
+		// 页码切换
+		handleCurrentChange(val) {
+			this.pageNum = val
+			this.$store.dispatch('getConsumerList', {
+				pageNum: this.pageNum,
+				pageSize: this.pageSize,
+				startTime: this.startTime,
+				endTime: this.endTime
+			})
+		},
+	},
 }
 </script>
 
@@ -100,5 +162,10 @@ export default {
 	.right-block {
 		display: flex;
 	}
+}
+.pagination-container {
+	display: flex;
+	justify-content: center;
+	margin-top: 20px;
 }
 </style>
