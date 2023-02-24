@@ -23,26 +23,31 @@
 
 		<!-- 第二行 -->
 		<el-card style="margin: 20px 0">
-			<el-row type="flex">
-				<el-col>
-					<span>用户名: xx</span>
-				</el-col>
-				<el-col>
-					<div class="input-block">
-						<span>用户充值</span>
-						<el-input style="width: 100px" />
-					</div>
-				</el-col>
-				<el-col>
-					<div class="input-block">
-						<span>用户消费</span>
-						<el-input style="width: 100px" />
-					</div>
-				</el-col>
-				<el-col :span="1">
-					<el-button>操作</el-button>
-				</el-col>
-			</el-row>
+			<el-form
+				:inline="true"
+				:model="formInline"
+				class="demo-form-inline"
+			>
+				<el-form-item label="用户手机号">
+					<el-input
+						v-model="formInline.phone"
+					></el-input>
+				</el-form-item>
+				<el-form-item label="充值金额">
+					<el-input
+						v-model="formInline.recharge"
+					></el-input>
+				</el-form-item>
+				<el-form-item label="消费金额">
+					<el-input
+						v-model="formInline.consume"
+					></el-input>
+				</el-form-item>
+				<el-form-item>
+					<el-button type="primary" @click="handleRecharge">充值</el-button>
+					<el-button type="primary" @click="handleConsume">消费</el-button>
+				</el-form-item>
+			</el-form>
 		</el-card>
 
 		<!-- 消费记录 -->
@@ -51,11 +56,13 @@
 </template>
 
 <script>
+import { mapActions } from 'vuex'
 import CustomTable from '@/components/CustomTable/CustomTable.vue'
+
 export default {
 	name: 'Operation',
 	components: {
-		CustomTable
+		CustomTable,
 	},
 	data() {
 		return {
@@ -100,9 +107,23 @@ export default {
 				{ column: 'date', label: '日期' },
 				{ column: 'name', label: '姓名' },
 				{ column: 'address', label: '地址' },
-			]
+			],
+			formInline: {
+				phone: '',
+				recharge: '',
+				consume: ''
+			}
 		}
 	},
+	computed: {
+		...mapActions(['rechargeMoney'])
+	},
+	methods: {
+		handleRecharge() {
+			this.$store.dispatch('rechargeMoney', this.formInline)
+		},
+		handleConsume() {}
+	}
 }
 </script>
 

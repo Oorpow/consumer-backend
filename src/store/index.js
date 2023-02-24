@@ -4,6 +4,8 @@ import createPersistedState from 'vuex-persistedstate'
 
 import tab from './tab'
 import consumer from './consumer'
+import recharge from './recharge'
+import user from './user'
 
 Vue.use(Vuex)
 
@@ -11,7 +13,9 @@ Vue.use(Vuex)
 export default new Vuex.Store({
     modules: {
         tab,
-        consumer
+        consumer,
+        recharge,
+        user
     },
     plugins: [createPersistedState()]   // 默认存储到Local Storage里
 })

@@ -22,7 +22,7 @@
 			</div>
 		</div>
 		<custom-table
-			:tableData="tableData"
+			:tableData="consumerList"
 			:columnList="columnList"
 			:showOperationColumn="false"
 		></custom-table>
@@ -30,6 +30,7 @@
 			<el-pagination
 				background
 				layout="total, sizes, prev, pager, next"
+				:page-size="pageSize"
 				:page-sizes="[5, 10]"
 				:total="100"
 				@size-change="handleSizeChange"
@@ -41,7 +42,7 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex'
+import { mapActions, mapGetters } from 'vuex'
 import CustomTable from '@/components/CustomTable/CustomTable.vue'
 
 import { formatTimeStamp } from '@/utils/formatTimeStamp'
@@ -72,43 +73,6 @@ export default {
 					},
 				],
 			},
-			tableData: [
-				{
-					date: '2016-05-03',
-					name: '王小虎',
-					address: '上海市普陀区金沙江路 1518 弄',
-				},
-				{
-					date: '2016-05-02',
-					name: '王小虎',
-					address: '上海市普陀区金沙江路 1518 弄',
-				},
-				{
-					date: '2016-05-04',
-					name: '王小虎',
-					address: '上海市普陀区金沙江路 1518 弄',
-				},
-				{
-					date: '2016-05-01',
-					name: '王小虎',
-					address: '上海市普陀区金沙江路 1518 弄',
-				},
-				{
-					date: '2016-05-08',
-					name: '王小虎',
-					address: '上海市普陀区金沙江路 1518 弄',
-				},
-				{
-					date: '2016-05-06',
-					name: '王小虎',
-					address: '上海市普陀区金沙江路 1518 弄',
-				},
-				{
-					date: '2016-05-07',
-					name: '王小虎',
-					address: '上海市普陀区金沙江路 1518 弄',
-				},
-			],
 			columnList: [
 				{ column: 'date', label: '日期' },
 				{ column: 'name', label: '姓名' },
@@ -118,8 +82,18 @@ export default {
 			pageNum: 1,
 		}
 	},
+	mounted() {
+		this.$store.dispatch('getConsumerList', {
+			pageNum: this.pageNum,
+			pageSize: this.pageSize,
+			startTime: this.startTime,
+			endTime: this.endTime,
+		})
+		console.log(this.$store.getters.consumerList)
+	},
 	computed: {
 		...mapActions(['getConsumerList']),
+		...mapGetters(['consumerList'])
 	},
 	methods: {
 		handleEdit(row) {
@@ -138,7 +112,7 @@ export default {
 				pageNum: this.pageNum,
 				pageSize: this.pageSize,
 				startTime: this.startTime,
-				endTime: this.endTime
+				endTime: this.endTime,
 			})
 		},
 		// 页码切换
@@ -148,7 +122,7 @@ export default {
 				pageNum: this.pageNum,
 				pageSize: this.pageSize,
 				startTime: this.startTime,
-				endTime: this.endTime
+				endTime: this.endTime,
 			})
 		},
 	},
