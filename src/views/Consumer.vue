@@ -23,9 +23,13 @@
 		</div>
 		<custom-table
 			:tableData="consumerList"
-			:columnList="columnList"
 			:showOperationColumn="false"
-		></custom-table>
+			:prop-list="propList"
+		>
+			<template #date="{ rowData }">
+				<span>{{ formatTime(rowData.consumerDate) }}</span>
+			</template>
+		</custom-table>
 		<div class="pagination-container">
 			<el-pagination
 				background
@@ -43,6 +47,7 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex'
+import dayjs from 'dayjs'
 import CustomTable from '@/components/CustomTable/CustomTable.vue'
 import { formatTimeStamp } from '@/utils/formatTimeStamp'
 
@@ -67,20 +72,35 @@ export default {
 								start.getTime() - 3600 * 1000 * 24 * 7
 							)
 							picker.$emit('pick', [start, end])
-							console.log(123)
 						},
 					},
 				],
 			},
-			columnList: [
-				{ column: 'id', label: 'id' },
-				{ column: 'name', label: '姓名' },
-				{ column: 'money', label: '消费金额' },
-				{ column: 'phone', label: '联系方式' },
-				{ column: 'consumerDate', label: '消费日期' },
-			],
 			pageSize: 5,
 			pageNum: 1,
+			propList: [
+				{
+					prop: 'id',
+					label: 'id',
+				},
+				{
+					prop: 'name',
+					label: '姓名',
+				},
+				{
+					prop: 'money',
+					label: '消费金额',
+				},
+				{
+					prop: 'phone',
+					label: '联系方式',
+				},
+				{
+					prop: 'consumerDate',
+					label: '消费日期',
+					slotName: 'date'
+				},
+			]
 		}
 	},
 	mounted() {
@@ -104,6 +124,13 @@ export default {
 			const endTime = formatTimeStamp(this.timeRange[1])
 			this.startTime = startTime
 			this.endTime = endTime
+
+			this.$store.dispatch('getConsumerList', {
+				pageNum: this.pageNum,
+				pageSize: this.pageSize,
+				startTime: this.startTime,
+				endTime: this.endTime,
+			})
 		},
 		// 分页条数
 		handleSizeChange(val) {
@@ -125,6 +152,9 @@ export default {
 				endTime: this.endTime,
 			})
 		},
+		formatTime(date) {
+			return dayjs(date).format('YYYY/MM/DD')
+		}
 	},
 }
 </script>

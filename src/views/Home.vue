@@ -46,7 +46,7 @@
 							:style="{ backgroundColor: item.color }"
 						></i>
 						<div class="detail">
-							<p class="price">￥{{ item.value }}</p>
+							<p class="price">{{ item.value }}</p>
 							<p class="desc">{{ item.name }}</p>
 						</div>
 					</el-card>
@@ -61,6 +61,7 @@
 </template>
 
 <script>
+import { mapActions, mapGetters } from 'vuex'
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
 import { BarChart } from 'echarts/charts'
@@ -68,9 +69,10 @@ import {
 	TitleComponent,
 	TooltipComponent,
 	LegendComponent,
-    GridComponent
+	GridComponent,
 } from 'echarts/components'
-import VChart, { THEME_KEY } from 'vue-echarts'
+import VChart from 'vue-echarts'
+import { fetchStatisticsData } from '@/api/consumer'
 
 use([
 	CanvasRenderer,
@@ -78,7 +80,7 @@ use([
 	TitleComponent,
 	TooltipComponent,
 	LegendComponent,
-    GridComponent
+	GridComponent,
 ])
 
 export default {
@@ -129,59 +131,114 @@ export default {
 			countData: [
 				{
 					name: '今日消费数量',
-					value: 1234,
+					value: undefined,
 					icon: 'success',
 					color: '#2ec7c9',
+					label: 'todaySum'
 				},
 				{
 					name: '今月消费数量',
-					value: 210,
+					value: this.$store.getters.totalRecordData.monthSum,
 					icon: 'star-on',
 					color: '#2ec7c9',
+					label: 'monthSum'
 				},
 				{
 					name: '今年消费数量',
-					value: 1234,
+					value: this.$store.getters.totalRecordData.yearSum,
 					icon: 's-goods',
 					color: '#2ec7c9',
+					label: 'yearSum'
 				},
 				{
 					name: '今日消费金额',
-					value: 1234,
+					value: this.$store.getters.totalRecordData.todayMoney,
 					icon: 'success',
 					color: '#2ec7c9',
+					label: 'todayMoney'
 				},
 				{
 					name: '今月消费金额',
-					value: 1234,
+					value: this.$store.getters.totalRecordData.monthMoney,
 					icon: 'star-on',
 					color: '#2ec7c9',
+					label: 'monthMoney'
 				},
 				{
 					name: '今年消费金额',
-					value: 1234,
+					value: this.$store.getters.totalRecordData.yearMoney,
 					icon: 's-goods',
 					color: '#2ec7c9',
+					label: 'yearMoney'
 				},
 			],
 			// 图表配置项
 			option: {
-				xAxis: {
-					type: 'category',
-					data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+				tooltip: {
+					trigger: 'axis',
+					axisPointer: {
+						type: 'shadow',
+					},
 				},
-				yAxis: {
-					type: 'value',
+				legend: {},
+				grid: {
+					left: '3%',
+					right: '4%',
+					bottom: '3%',
+					containLabel: true,
 				},
+				xAxis: [
+					{
+						type: 'category',
+						data: this.$store.getters.oneWeekData.dateArr,
+					},
+				],
+				yAxis: [
+					{
+						type: 'value',
+					},
+				],
 				series: [
 					{
-						data: [120, 200, 150, 80, 70, 110, 130],
+						name: '金额',
 						type: 'bar',
+						emphasis: {
+							focus: 'series',
+						},
+						data: this.$store.getters.oneWeekData.moneyArr,
+					},
+					{
+						name: '销量',
+						type: 'bar',
+						stack: 'Ad',
+						emphasis: {
+							focus: 'series',
+						},
+						data: this.$store.getters.oneWeekData.countArr,
 					},
 				],
 			},
 		}
 	},
+	computed: {
+		...mapActions(['getConsumerOneWeek']),
+		...mapGetters(['oneWeekData', 'totalRecordData']),
+	},
+	created() {
+		this.$store.dispatch('getConsumerOneWeek')
+		this.getRecordData()
+	},
+	methods: {
+		async getRecordData() {
+			const res = await fetchStatisticsData()
+			this.countData.forEach((item) => {
+				item.value = res.data.data[item.label]
+			})
+			console.log(this.countData)
+			// this.$set(this, 'recordData', res.data.data)
+			// console.log(this.recordData)
+		}
+	}
 }
 </script>
 

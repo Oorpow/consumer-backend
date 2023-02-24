@@ -1,11 +1,20 @@
-import { fetchConsumerListByPage, fetchUserConsumerListByPage } from '@/api/consumer'
+import { fetchConsumerListByPage, fetchConsumerListOneWeek, fetchStatisticsData, fetchUserConsumerListByPage } from '@/api/consumer'
+import Vue from 'vue'
 
 export default {
 	state: {
 		consumerList: [],
 		total: 0,
 		userConsumerList: [],
-		userConsumerListTotal: 0
+		userConsumerListTotal: 0,
+		chartData: {
+			dateArr: [],
+			moneyArr: [],
+			countArr: []
+		},
+		totalRecord: {
+			todaySum: 1,
+		}
 	},
 	mutations: {
 		setConsumerList(state, { allCount, list}) {
@@ -18,6 +27,22 @@ export default {
 			state.userConsumerList.length = 0
 			state.userConsumerListTotal = allCount
 			list && state.userConsumerList.push(...list)
+		},
+		// 图表数据
+		setChartData(state, payload) {
+			const list = Object.entries(payload).sort()
+			state.chartData.dateArr.length = 0
+			state.chartData.moneyArr.length = 0
+			state.chartData.countArr.length = 0
+
+			list.forEach(item => {
+				state.chartData.dateArr.push(item[0])
+				state.chartData.moneyArr.push(item[1].money)
+				state.chartData.countArr.push(item[1].count)
+			})
+		},
+		setTotalRecord(state, payload) {
+			Vue.set(state, 'totalRecord', payload)
 		}
 	},
 	actions: {
@@ -35,6 +60,16 @@ export default {
 				allCount: res.data.allCount,
 				list: res.data.data
 			})
+		},
+		// 获取一周前的消费金额
+		async getConsumerOneWeek({ commit }) {
+			const res = await fetchConsumerListOneWeek()
+			commit('setChartData', res.data.data)
+		},
+		// 获取统计记录
+		async getStatisticsData({ commit }) {
+			const res = await fetchStatisticsData()
+			commit('setTotalRecord', res.data.data)
 		}
 	},
 	getters: {
@@ -47,6 +82,8 @@ export default {
 		consumeListTotal(state) {
 			return state.total
 		},
-		userConsumerListTotal: (state) => state.userConsumerListTotal
+		userConsumerListTotal: (state) => state.userConsumerListTotal,
+		oneWeekData: (state) => state.chartData,
+		totalRecordData: (state) => state.totalRecord
 	}
 }

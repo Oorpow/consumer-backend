@@ -2,23 +2,23 @@
 	<div>
 		<!-- 第一行 -->
 		<el-card>
-			<el-row type="flex" justify="space-between">
-				<el-col :span="5">
-					<div class="input-block">
-						<span>充值金额</span>
-						<el-input style="width: 100px" />
-					</div>
-				</el-col>
-				<el-col :span="5">
-					<div class="input-block">
-						<span>赠送金额</span>
-						<el-input style="width: 100px" />
-					</div>
-				</el-col>
-				<el-col :span="1">
-					<el-button>操作</el-button>
-				</el-col>
-			</el-row>
+			<el-form
+				:inline="true"
+				:model="formPromotion"
+				class="demo-form-inline"
+			>
+				<el-form-item label="充值金额">
+					<el-input v-model="formPromotion.recharge"></el-input>
+				</el-form-item>
+				<el-form-item label="赠送金额">
+					<el-input v-model="formPromotion.giftMoney"></el-input>
+				</el-form-item>
+				<el-form-item>
+					<el-button type="primary" @click="handleGiftMoney"
+						>确定</el-button
+					>
+				</el-form-item>
+			</el-form>
 		</el-card>
 
 		<!-- 第二行 -->
@@ -29,36 +29,43 @@
 				class="demo-form-inline"
 			>
 				<el-form-item label="用户手机号">
-					<el-input
-						v-model="formInline.phone"
-					></el-input>
+					<el-input v-model="formInline.phone"></el-input>
 				</el-form-item>
 				<el-form-item label="充值金额">
-					<el-input
-						v-model="formInline.recharge"
-					></el-input>
+					<el-input v-model="formInline.recharge"></el-input>
 				</el-form-item>
 				<el-form-item label="消费金额">
-					<el-input
-						v-model="formInline.consume"
-					></el-input>
+					<el-input v-model="formInline.consume"></el-input>
 				</el-form-item>
 				<el-form-item>
-					<el-button type="primary" @click="handleRecharge">充值</el-button>
-					<el-button type="primary" @click="handleConsume">消费</el-button>
-					<el-button type="primary" @click="handleSearchConsumeRecord">查询消费记录</el-button>
+					<el-button type="primary" @click="handleRecharge"
+						>充值</el-button
+					>
+					<el-button type="primary" @click="handleConsume"
+						>消费</el-button
+					>
+					<el-button type="primary" @click="handleSearchConsumeRecord"
+						>查询消费记录</el-button
+					>
 				</el-form-item>
 			</el-form>
 		</el-card>
 
 		<!-- 消费记录 -->
-		<custom-table :table-data="userConsumerList" :columnList="columnList" />
+		<custom-table :table-data="userConsumerList" :prop-list="propList">
+			<template #date="{ rowData }">
+				<span>{{ formatTimeToDate(rowData.consumerDate) }}</span>
+			</template>
+		</custom-table>
 	</div>
 </template>
 
 <script>
+import dayjs from 'dayjs'
 import { mapActions, mapGetters } from 'vuex'
 import CustomTable from '@/components/CustomTable/CustomTable.vue'
+import { fetchPresentMoney } from '@/api/consumer'
+import { formatTimeToDate } from '@/utils/formatTimeStamp'
 
 export default {
 	name: 'Operation',
@@ -67,26 +74,37 @@ export default {
 	},
 	data() {
 		return {
-			columnList: [
-				{ column: 'id', label: 'id' },
-				{ column: 'name', label: '姓名' },
-				{ column: 'phone', label: '联系方式' },
-				{ column: 'money', label: '消费金额' },
-				{ column: 'consumerDate', label: '消费日期' },
+			propList: [
+				{ prop: 'id', label: 'id' },
+				{ prop: 'name', label: '姓名' },
+				{ prop: 'phone', label: '联系方式' },
+				{ prop: 'money', label: '消费金额' },
+				{ prop: 'consumerDate', label: '消费日期', slotName: 'date' },
 			],
+			formPromotion: {
+				recharge: '',
+				giftMoney: '',
+			},
 			formInline: {
 				phone: '',
 				recharge: '',
-				consume: ''
-			}
+				consume: '',
+			},
+			presentFill: 0,
+			presentGive: 0
 		}
 	},
 	computed: {
-		...mapActions(['rechargeMoney', 'consumeMoney', 'getUserConsumerList']),
-		...mapGetters(['userConsumerListTotal', 'userConsumerList'])
+		...mapActions([
+			'rechargeMoney',
+			'consumeMoney',
+			'getUserConsumerList',
+			'rechargeMoneyAndGetGift',
+		]),
+		...mapGetters(['userConsumerListTotal', 'userConsumerList']),
 	},
-	mounted() {
-		console.log(this.$store.getters.userConsumerList);
+	created() {
+		this.queryPresentMoney()
 	},
 	methods: {
 		// 充值
@@ -101,8 +119,21 @@ export default {
 		// 查询个人消费记录
 		handleSearchConsumeRecord() {
 			this.$store.dispatch('getUserConsumerList', {
-				phone: this.formInline.phone
+				phone: this.formInline.phone,
 			})
+		},
+		// 充值赠送金额
+		handleGiftMoney() {
+			this.$store.dispatch('rechargeMoneyAndGetGift', this.formPromotion)
+		},
+		// 查询赠送的金额
+		async queryPresentMoney() {
+			const res = await fetchPresentMoney()
+			this.formPromotion.recharge = res.data.data.presentFill
+			this.formPromotion.giftMoney = res.data.data.presentGive
+		},
+		formatTimeToDate(date) {
+			return dayjs(date).format('YYYY/MM/DD')
 		}
 	}
 }

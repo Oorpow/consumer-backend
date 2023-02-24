@@ -24,3 +24,22 @@ export const fetchUserConsumerListByPage = (phone, pagenum, pagesize) => http({
 		phone
 	}
 })
+
+// 充值赠送金额
+export const fetchRechargeGiftMoney = (presentFill, presentGive) => http({
+	method: HTTP_METHOD.POST,
+	url: '/present/modify',
+	data: {
+		presentFill,
+		presentGive
+	}
+})
+
+// 获取一周前的消费金额
+export const fetchConsumerListOneWeek = () => http.get('/consumerLog/getWeekDay')
+
+// 获取统计记录
+export const fetchStatisticsData = () => http.get('/consumerLog/statistics')
+
+// 获取充值赠送金额
+export const fetchPresentMoney = () => http.get('/present/money')

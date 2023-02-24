@@ -75,18 +75,21 @@
 		<div class="common-tabel">
 			<CustomTable
 				:table-data="userList"
-				:column-list="columnList"
+				:prop-list="propList"
 				:show-operation-column="true"
 			>
+				<template #date="{ rowData }">
+					<span>{{ formatTimeToDate(rowData.registerDate) }}</span>
+				</template>
 				<template #operation="{ rowData }">
 					<el-button size="mini" @click="handleEdit(rowData)"
 						>编辑</el-button
 					>
-					<el-popconfirm title="确定删除吗？" @confirm="handleDelete(rowData)">
-						<el-button
-							slot="reference"
-							size="mini"
-							type="danger"
+					<el-popconfirm
+						title="确定删除吗？"
+						@confirm="handleDelete(rowData)"
+					>
+						<el-button slot="reference" size="mini" type="danger"
 							>删除</el-button
 						>
 					</el-popconfirm>
@@ -112,6 +115,8 @@
 <script>
 import CustomTable from '@/components/CustomTable/CustomTable.vue'
 import { mapActions, mapGetters } from 'vuex'
+import { formatTimeToDate } from '@/utils/formatTimeStamp'
+import dayjs from 'dayjs'
 
 export default {
 	components: { CustomTable },
@@ -141,38 +146,39 @@ export default {
 				],
 				sex: [{ required: true, message: '请选择性别' }],
 			},
-			columnList: [
+			propList: [
 				{
-					column: 'id',
+					prop: 'id',
 					label: 'id',
 				},
 				{
-					column: 'name',
+					prop: 'name',
 					label: '姓名',
 				},
 				{
-					column: 'phone',
+					prop: 'phone',
 					label: '联系方式',
 				},
 				{
-					column: 'sex',
+					prop: 'sex',
 					label: '性别',
 				},
 				{
-					column: 'age',
+					prop: 'age',
 					label: '年龄',
 				},
 				{
-					column: 'birthday',
+					prop: 'birthday',
 					label: '生日',
 				},
 				{
-					column: 'money',
+					prop: 'money',
 					label: '金额',
 				},
 				{
-					column: 'registerDate',
+					prop: 'registerDate',
 					label: '注册日期',
+					slotName: 'date'
 				},
 			],
 			modalType: 0,
@@ -240,6 +246,9 @@ export default {
 			this.pageNum = val
 			this.$store.dispatch('getUserList', this.pageNum, this.pageSize)
 		},
+		formatTimeToDate(date) {
+			return dayjs(date).format('YYYY/MM/DD')
+		}
 	},
 }
 </script>

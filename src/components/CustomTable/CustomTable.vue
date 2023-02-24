@@ -1,8 +1,12 @@
 <template>
 	<el-table :data="tableData" stripe style="width: 100%">
-		<template v-for="(col, i) in columnList">
-			<el-table-column :prop="col.column" :label="col.label" :key="i" />
-		</template>
+		<el-table-column v-for="(item, i) in propList" :key="i" v-bind="item">
+			<template #default="scope">
+				<slot :name="item.slotName" :rowData="scope.row">{{
+					scope.row[item.prop]
+				}}</slot>
+			</template>
+		</el-table-column>
 		<!-- 操作栏 -->
 		<template v-if="showOperationColumn">
 			<el-table-column label="操作">
@@ -36,14 +40,13 @@ export default {
 			default: () => [],
 			required: true,
 		},
-		columnList: {
-			type: Array,
-			default: () => [],
-			required: true,
-		},
 		showOperationColumn: {
 			type: Boolean,
 			default: false,
+		},
+		propList: {
+			type: Array,
+			default: () => [],
 		},
 	},
 	data() {
