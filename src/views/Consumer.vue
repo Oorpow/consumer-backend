@@ -31,8 +31,8 @@
 				background
 				layout="total, sizes, prev, pager, next"
 				:page-size="pageSize"
+				:total="consumeListTotal"
 				:page-sizes="[5, 10]"
-				:total="100"
 				@size-change="handleSizeChange"
 				@current-change="handleCurrentChange"
 			>
@@ -44,7 +44,6 @@
 <script>
 import { mapActions, mapGetters } from 'vuex'
 import CustomTable from '@/components/CustomTable/CustomTable.vue'
-
 import { formatTimeStamp } from '@/utils/formatTimeStamp'
 
 export default {
@@ -74,9 +73,11 @@ export default {
 				],
 			},
 			columnList: [
-				{ column: 'date', label: '日期' },
+				{ column: 'id', label: 'id' },
 				{ column: 'name', label: '姓名' },
-				{ column: 'address', label: '地址' },
+				{ column: 'money', label: '消费金额' },
+				{ column: 'phone', label: '联系方式' },
+				{ column: 'consumerDate', label: '消费日期' },
 			],
 			pageSize: 5,
 			pageNum: 1,
@@ -89,11 +90,10 @@ export default {
 			startTime: this.startTime,
 			endTime: this.endTime,
 		})
-		console.log(this.$store.getters.consumerList)
 	},
 	computed: {
 		...mapActions(['getConsumerList']),
-		...mapGetters(['consumerList'])
+		...mapGetters(['consumerList', 'consumeListTotal'])
 	},
 	methods: {
 		handleEdit(row) {

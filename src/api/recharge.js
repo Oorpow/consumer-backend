@@ -9,3 +9,12 @@ export const fetchRechargeMoney = (phone, money) => http({
         money
     }
 })
+
+export const fetchConsumeMoney = (phone, money) => http({
+    method: HTTP_METHOD.POST,
+    url: '/user/consumer',
+    data: {
+        phone,
+        money
+    }
+})

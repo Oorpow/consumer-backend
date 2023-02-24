@@ -16,3 +16,11 @@ export const fetchConsumerListByPage = (
 			: `/consumerLog/getConsumer/${pagenum}/${pagesize}`,
         data: {}
 	})
+
+export const fetchUserConsumerListByPage = (phone, pagenum, pagesize) => http({
+	method: HTTP_METHOD.POST,
+	url: `/consumerLog/getConsumer/${pagenum}/${pagesize}`,
+	data: {
+		phone
+	}
+})

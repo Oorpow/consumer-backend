@@ -17,5 +17,7 @@ export default new Vuex.Store({
         recharge,
         user
     },
-    plugins: [createPersistedState()]   // 默认存储到Local Storage里
+    plugins: [createPersistedState({
+        paths: ['tab.menuData', 'tab.tabList']
+    })]   // 默认存储到Local Storage里
 })

@@ -46,17 +46,18 @@
 				<el-form-item>
 					<el-button type="primary" @click="handleRecharge">充值</el-button>
 					<el-button type="primary" @click="handleConsume">消费</el-button>
+					<el-button type="primary" @click="handleSearchConsumeRecord">查询消费记录</el-button>
 				</el-form-item>
 			</el-form>
 		</el-card>
 
 		<!-- 消费记录 -->
-		<custom-table :table-data="tableData" :columnList="columnList" />
+		<custom-table :table-data="userConsumerList" :columnList="columnList" />
 	</div>
 </template>
 
 <script>
-import { mapActions } from 'vuex'
+import { mapActions, mapGetters } from 'vuex'
 import CustomTable from '@/components/CustomTable/CustomTable.vue'
 
 export default {
@@ -66,47 +67,12 @@ export default {
 	},
 	data() {
 		return {
-			tableData: [
-				{
-					date: '2016-05-03',
-					name: '王小虎',
-					address: '上海市普陀区金沙江路 1518 弄',
-				},
-				{
-					date: '2016-05-02',
-					name: '王小虎',
-					address: '上海市普陀区金沙江路 1518 弄',
-				},
-				{
-					date: '2016-05-04',
-					name: '王小虎',
-					address: '上海市普陀区金沙江路 1518 弄',
-				},
-				{
-					date: '2016-05-01',
-					name: '王小虎',
-					address: '上海市普陀区金沙江路 1518 弄',
-				},
-				{
-					date: '2016-05-08',
-					name: '王小虎',
-					address: '上海市普陀区金沙江路 1518 弄',
-				},
-				{
-					date: '2016-05-06',
-					name: '王小虎',
-					address: '上海市普陀区金沙江路 1518 弄',
-				},
-				{
-					date: '2016-05-07',
-					name: '王小虎',
-					address: '上海市普陀区金沙江路 1518 弄',
-				},
-			],
 			columnList: [
-				{ column: 'date', label: '日期' },
+				{ column: 'id', label: 'id' },
 				{ column: 'name', label: '姓名' },
-				{ column: 'address', label: '地址' },
+				{ column: 'phone', label: '联系方式' },
+				{ column: 'money', label: '消费金额' },
+				{ column: 'consumerDate', label: '消费日期' },
 			],
 			formInline: {
 				phone: '',
@@ -116,13 +82,28 @@ export default {
 		}
 	},
 	computed: {
-		...mapActions(['rechargeMoney'])
+		...mapActions(['rechargeMoney', 'consumeMoney', 'getUserConsumerList']),
+		...mapGetters(['userConsumerListTotal', 'userConsumerList'])
+	},
+	mounted() {
+		console.log(this.$store.getters.userConsumerList);
 	},
 	methods: {
+		// 充值
 		handleRecharge() {
 			this.$store.dispatch('rechargeMoney', this.formInline)
+			this.formInline = {}
 		},
-		handleConsume() {}
+		// 消费
+		handleConsume() {
+			this.$store.dispatch('consumeMoney', this.formInline)
+		},
+		// 查询个人消费记录
+		handleSearchConsumeRecord() {
+			this.$store.dispatch('getUserConsumerList', {
+				phone: this.formInline.phone
+			})
+		}
 	}
 }
 </script>
