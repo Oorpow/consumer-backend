@@ -1,4 +1,4 @@
-import { fetchConsumerListByPage, fetchConsumerListOneWeek, fetchStatisticsData, fetchUserConsumerListByPage } from '@/api/consumer'
+import { fetchConsumerListByPage, fetchConsumerListOneWeek, fetchStatisticsData, fetchUserConsumerListByPage, fetchConsumerLists } from '@/api/consumer'
 import Vue from 'vue'
 
 export default {
@@ -14,9 +14,14 @@ export default {
 		},
 		totalRecord: {
 			todaySum: 1,
-		}
+		},
+		consumerLists: [],
 	},
 	mutations: {
+		setConsumerLists(state, list) {
+			state.consumerLists.length = 0
+			list && state.consumerLists.push(...list)
+		},
 		setConsumerList(state, { allCount, list}) {
 			state.consumerList.length = 0
 			state.total = allCount
@@ -70,6 +75,10 @@ export default {
 		async getStatisticsData({ commit }) {
 			const res = await fetchStatisticsData()
 			commit('setTotalRecord', res.data.data)
+		},
+		async getConsumerLists({ commit }) {
+			const res = await fetchConsumerLists()
+			commit('setConsumerLists', res.data.data)
 		}
 	},
 	getters: {
@@ -84,6 +93,9 @@ export default {
 		},
 		userConsumerListTotal: (state) => state.userConsumerListTotal,
 		oneWeekData: (state) => state.chartData,
-		totalRecordData: (state) => state.totalRecord
+		totalRecordData: (state) => state.totalRecord,
+		consumerLists(state) {
+			return state.consumerLists
+		}
 	}
 }

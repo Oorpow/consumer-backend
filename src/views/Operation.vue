@@ -38,13 +38,13 @@
 					<el-input v-model="formInline.consume"></el-input>
 				</el-form-item>
 				<el-form-item>
-					<el-button type="primary" @click="handleRecharge"
+					<el-button type="primary" :disabled="select" @click="handleRecharge"
 						>充值</el-button
 					>
-					<el-button type="primary" @click="handleConsume"
+					<el-button type="primary" :disabled="select" @click="handleConsume"
 						>消费</el-button
 					>
-					<el-button type="primary" @click="handleSearchConsumeRecord"
+					<el-button type="primary" :disabled="select" @click="handleSearchConsumeRecord"
 						>查询消费记录</el-button
 					>
 				</el-form-item>
@@ -102,6 +102,9 @@ export default {
 			'rechargeMoneyAndGetGift',
 		]),
 		...mapGetters(['userConsumerListTotal', 'userConsumerList']),
+		select() {
+			return !(this.formInline.phone.length == 11)
+		}
 	},
 	created() {
 		this.queryPresentMoney()

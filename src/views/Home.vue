@@ -17,20 +17,11 @@
 				</el-card>
 
 				<el-card style="margin-top: 20px; padding-left: 10px">
-					<el-table
-						:data="tableData"
-						style="width: 100%"
-						height="265"
-						class="table"
-					>
-						<el-table-column
-							v-for="(val, key) in tableLabel"
-							:key="key"
-							:prop="key"
-							:label="val"
-						>
-						</el-table-column>
-					</el-table>
+					<custom-table :table-data="consumerLists" :prop-list="propList">
+						<template #date="{ rowData }">
+							<span>{{ formatTimeToDate(rowData.consumerDate) }}</span>
+						</template>
+					</custom-table>
 				</el-card>
 			</el-col>
 			<el-col :span="16">
@@ -61,6 +52,8 @@
 </template>
 
 <script>
+import CustomTable from '@/components/CustomTable/CustomTable.vue'
+import dayjs from 'dayjs'
 import { mapActions, mapGetters } from 'vuex'
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
@@ -87,43 +80,26 @@ export default {
 	name: 'Home',
 	components: {
 		VChart,
+		CustomTable
 	},
 	data() {
 		return {
-			tableData: [
+			propList: [
 				{
-					name: 'oppo',
-					phone: 12345678910,
-					money: 300,
-					consumerDate: 800,
+					prop: 'phone',
+					label: '手机号码'
 				},
 				{
-					name: '小米',
-					phone: 100,
-					money: 300,
-					consumerDate: 800,
+					prop: 'money',
+					label: '金额'
 				},
 				{
-					name: '华为',
-					phone: 100,
-					money: 300,
-					consumerDate: 800,
-				},
-				{
-					name: 'vivo',
-					phone: 100,
-					money: 300,
-					consumerDate: 800,
-				},
-				{
-					name: '苹果',
-					phone: 100,
-					money: 300,
-					consumerDate: 800,
-				},
+					prop: 'consumerDate',
+					label: '消费时间',
+					slotName: 'date'
+				}
 			],
 			tableLabel: {
-				name: '姓名',
 				phone: '手机号码',
 				money: '金额',
 				consumerDate: '消费时间',
@@ -221,11 +197,12 @@ export default {
 		}
 	},
 	computed: {
-		...mapActions(['getConsumerOneWeek']),
-		...mapGetters(['oneWeekData', 'totalRecordData']),
+		...mapActions(['getConsumerOneWeek', 'getConsumerLists']),
+		...mapGetters(['oneWeekData', 'totalRecordData', 'consumerLists']),
 	},
 	created() {
 		this.$store.dispatch('getConsumerOneWeek')
+		this.$store.dispatch('getConsumerLists')
 		this.getRecordData()
 	},
 	methods: {
@@ -237,6 +214,9 @@ export default {
 			console.log(this.countData)
 			// this.$set(this, 'recordData', res.data.data)
 			// console.log(this.recordData)
+		},
+		formatTimeToDate(date) {
+			return dayjs(date).format('YYYY/MM/DD')
 		}
 	}
 }

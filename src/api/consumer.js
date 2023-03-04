@@ -17,6 +17,12 @@ export const fetchConsumerListByPage = (
         data: {}
 	})
 
+export const fetchConsumerLists = () => http({
+	method: HTTP_METHOD.GET,
+	url: `/consumerLog/getConsumers`
+})
+
+
 export const fetchUserConsumerListByPage = (phone, pagenum, pagesize) => http({
 	method: HTTP_METHOD.POST,
 	url: `/consumerLog/getConsumer/${pagenum}/${pagesize}`,
