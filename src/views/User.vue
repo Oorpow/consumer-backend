@@ -78,6 +78,10 @@
 				:prop-list="propList"
 				:show-operation-column="true"
 			>
+				<template #sex="{ rowData }">
+					<!-- 性别插槽 -->
+					<span>{{ rowData.sex === 1 ? '男' : '女' }}</span>
+				</template>
 				<template #date="{ rowData }">
 					<span>{{ formatTimeToDate(rowData.registerDate) }}</span>
 				</template>
@@ -113,21 +117,23 @@
 </template>
 
 <script>
-import CustomTable from '@/components/CustomTable/CustomTable.vue'
 import { mapActions, mapGetters } from 'vuex'
-import { formatTimeToDate } from '@/utils/formatTimeStamp'
 import dayjs from 'dayjs'
+import CustomTable from '@/components/CustomTable/CustomTable.vue'
+import { formatTimeToDate } from '@/utils/formatTimeStamp'
 
 export default {
 	components: { CustomTable },
 	data() {
 		let phoneValid = function (rule, value, callback) {
-			let re =
-				/^(13[0-9]|14[01456879]|15[0-3,5-9]|16[2567]|17[0-8]|18[0-9]|19[0-3,5-9])\d{8}$/
-			if (!Number.isInteger(value) || !re.test(value)) {
-				callback(new Error('手机格式不正确'))
+			let reg = /^(?:(?:\+|00)86)?1(?:(?:3[\d])|(?:4[5-79])|(?:5[0-35-9])|(?:6[5-7])|(?:7[0-8])|(?:8[\d])|(?:9[189]))\d{8}$/
+			if (!value) {
+				callback(new Error('手机号不能为空'))
+			} else {
+				if (!Number.isInteger(value) || !reg.test(value)) {
+					callback(new Error('手机格式不正确'))
+				}
 			}
-			callback()
 		}
 		return {
 			dialogVisible: false,
@@ -162,6 +168,7 @@ export default {
 				{
 					prop: 'sex',
 					label: '性别',
+					slotName: 'sex',
 				},
 				{
 					prop: 'age',
@@ -178,7 +185,7 @@ export default {
 				{
 					prop: 'registerDate',
 					label: '注册日期',
-					slotName: 'date'
+					slotName: 'date',
 				},
 			],
 			modalType: 0,
@@ -207,12 +214,26 @@ export default {
 		handlerNew() {
 			this.dialogVisible = true
 			this.modalType = 0
+			// 清空验证
+			this.$nextTick().then(() => {
+				this.$refs.form.clearValidate()
+			})
+			// 清空表单
+			this.form = Object.assign({}, this.form, {
+				name: '',
+				phone: '',
+				age: '',
+				sex: '',
+				brithday: '',
+			})
 		},
 		// 编辑
 		handleEdit(row) {
 			this.dialogVisible = true
 			this.modalType = 1
 			this.form = Object.assign({}, this.form, row)
+			// 删除金额字段
+			this.$delete(this.form, 'money')
 		},
 		handleDelete({ phone }) {
 			this.$store.dispatch('deleteUser', phone)
@@ -248,7 +269,7 @@ export default {
 		},
 		formatTimeToDate(date) {
 			return dayjs(date).format('YYYY/MM/DD')
-		}
+		},
 	},
 }
 </script>

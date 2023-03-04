@@ -113,7 +113,8 @@ export default {
 		// 充值
 		handleRecharge() {
 			this.$store.dispatch('rechargeMoney', this.formInline)
-			this.formInline = {}
+			this.formInline.recharge = ''
+			this.formInline.giftMoney = ''
 		},
 		// 消费
 		handleConsume() {

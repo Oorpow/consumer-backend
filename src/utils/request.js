@@ -2,7 +2,7 @@ import axios from 'axios'
 
 const http = axios.create({
     // 通用求的地址前缀
-    baseURL: '/api',
+    baseURL: 'http://10.230.140.229:8080/api',
     timeout: 10000, //超时时间
 })
 

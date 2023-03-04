@@ -1,6 +1,6 @@
 <template>
 	<div>
-		<el-row>
+		<el-row :gutter="20">
 			<el-col :span="8">
 				<el-card class="box-card">
 					<div class="user">
