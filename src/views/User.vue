@@ -35,8 +35,12 @@
 								v-model="form.sex"
 								placeholder="请选择性别"
 							>
-								<el-option label="男" :value="1"></el-option>
-								<el-option label="女" :value="0"></el-option>
+								<el-option
+									v-for="item in sexList"
+									:key="item.id"
+									:label="item.label"
+									:value="item.id"
+								></el-option>
 							</el-select>
 						</el-form-item>
 					</el-col>
@@ -126,7 +130,8 @@ export default {
 	components: { CustomTable },
 	data() {
 		let phoneValid = function (rule, value, callback) {
-			let reg = /^(?:(?:\+|00)86)?1(?:(?:3[\d])|(?:4[5-79])|(?:5[0-35-9])|(?:6[5-7])|(?:7[0-8])|(?:8[\d])|(?:9[189]))\d{8}$/
+			let reg =
+				/^(?:(?:\+|00)86)?1(?:(?:3[\d])|(?:4[5-79])|(?:5[0-35-9])|(?:6[5-7])|(?:7[0-8])|(?:8[\d])|(?:9[189]))\d{8}$/
 			if (!value) {
 				callback(new Error('手机号不能为空'))
 			} else {
@@ -187,6 +192,10 @@ export default {
 					label: '注册日期',
 					slotName: 'date',
 				},
+			],
+			sexList: [
+				{ id: '0', label: '女' },
+				{ id: '1', label: '男' },
 			],
 			modalType: 0,
 			seacher: '',
