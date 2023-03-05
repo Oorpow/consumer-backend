@@ -17,7 +17,7 @@
 				</el-card>
 
 				<el-card style="margin-top: 20px; padding-left: 10px">
-					<custom-table :table-data="consumerLists" :prop-list="propList">
+					<custom-table :table-data="consumerLists" :prop-list="propList" :height="300">
 						<template #date="{ rowData }">
 							<span>{{ formatTimeToDate(rowData.consumerDate) }}</span>
 						</template>
@@ -211,9 +211,6 @@ export default {
 			this.countData.forEach((item) => {
 				item.value = res.data.data[item.label]
 			})
-			console.log(this.countData)
-			// this.$set(this, 'recordData', res.data.data)
-			// console.log(this.recordData)
 		},
 		formatTimeToDate(date) {
 			return dayjs(date).format('YYYY/MM/DD')

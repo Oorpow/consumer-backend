@@ -1,5 +1,5 @@
 <template>
-	<el-table :data="tableData" height="200" stripe style="width: 100%">
+	<el-table :data="tableData" :max-height="height" stripe style="width: 100%">
 		<el-table-column v-for="(item, i) in propList" :key="i" v-bind="item">
 			<template #default="scope">
 				<slot :name="item.slotName" :rowData="scope.row">{{
@@ -48,6 +48,10 @@ export default {
 			type: Array,
 			default: () => [],
 		},
+		height: {
+			type: Number,
+			default: 500
+		}
 	},
 	data() {
 		return {}

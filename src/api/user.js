@@ -1,10 +1,12 @@
 import { HTTP_METHOD } from '@/constants'
 import http from '@/utils/request'
 
-export const getUserListByPage = (pagenum, pagesize) => http({
-    method: HTTP_METHOD.GET,
-    url: `/user/getUser/${pagenum}/${pagesize}`
-})
+export const getUserListByPage = (pagenum, pagesize) => {
+    return http({
+        method: HTTP_METHOD.GET,
+        url: `/user/getUser/${pagenum}/${pagesize}`
+    })
+}
 
 export const createUserByForm = (form) => http({
     method: HTTP_METHOD.POST,

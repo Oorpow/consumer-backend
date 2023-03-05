@@ -5,67 +5,41 @@
 			:visible.sync="dialogVisible"
 			width="40%"
 		>
-			<!-- 用户的表单信息 -->
-			<el-form ref="form" :model="form" label-width="80px" :rules="rules">
-				<el-row>
-					<el-col :span="20">
-						<el-form-item label="姓名" prop="name">
-							<el-input v-model="form.name"></el-input>
-						</el-form-item>
-					</el-col>
-				</el-row>
-				<el-row>
-					<el-col :span="20">
-						<el-form-item label="年龄" prop="age">
-							<el-input v-model.number="form.age"></el-input>
-						</el-form-item>
-					</el-col>
-				</el-row>
-				<el-row>
-					<el-col :span="20">
-						<el-form-item label="手机号码" prop="phone">
-							<el-input v-model.number="form.phone"></el-input>
-						</el-form-item>
-					</el-col>
-				</el-row>
-				<el-row>
-					<el-col :span="20">
-						<el-form-item label="性别" prop="age">
-							<el-select
-								v-model="form.sex"
-								placeholder="请选择性别"
-							>
-								<el-option
-									v-for="item in sexList"
-									:key="item.id"
-									:label="item.label"
-									:value="item.id"
-								></el-option>
-							</el-select>
-						</el-form-item>
-					</el-col>
-				</el-row>
-				<el-row>
-					<el-col :span="20">
-						<el-form-item label="出生日期" prop="birthday">
-							<el-date-picker
-								type="date"
-								placeholder="选择日期"
-								v-model="form.birthday"
-								style="width: 100%"
-								value-format="yyyy-MM-dd"
-							></el-date-picker>
-						</el-form-item>
-					</el-col>
-				</el-row>
+			<el-form
+				:model="form"
+				:rules="rules"
+				ref="userForm"
+				label-width="100px"
+			>
+				<el-form-item label="姓名" prop="name">
+					<el-input v-model="form.name"></el-input>
+				</el-form-item>
+				<el-form-item label="联系方式" prop="phone">
+					<el-input v-model.number="form.phone"></el-input>
+				</el-form-item>
+				<el-form-item label="性别" prop="sex">
+					<el-select v-model="form.sex" placeholder="请选择性别">
+						<el-option
+							v-for="item in sexList"
+							:key="item.id"
+							:value="item.id"
+							:label="item.label"
+						></el-option>
+					</el-select>
+				</el-form-item>
+				<el-form-item label="年龄" prop="age">
+					<el-input v-model="form.age"></el-input>
+				</el-form-item>
+				<el-form-item label="生日" prop="birthday">
+					<el-input v-model="form.birthday"></el-input>
+				</el-form-item>
+				<el-form-item>
+					<el-button type="primary" @click="submitForm"
+						>{{ modalType === 0 ? '立即创建' : '完成编辑' }}</el-button
+					>
+					<el-button @click="resetForm">重置</el-button>
+				</el-form-item>
 			</el-form>
-			<div class="btn">
-				<el-button type="success" @click="resetForm"> 重置 </el-button>
-				<div>
-					<el-button type="primary" @click="onSubmit">确定</el-button>
-					<el-button @click="dialogVisible = false">取消</el-button>
-				</div>
-			</div>
 		</el-dialog>
 
 		<div class="manage-header">
@@ -135,10 +109,11 @@ export default {
 			if (!value) {
 				callback(new Error('手机号不能为空'))
 			} else {
-				if (!Number.isInteger(value) || !reg.test(value)) {
+				if (!reg.test(value)) {
 					callback(new Error('手机格式不正确'))
 				}
 			}
+			callback()
 		}
 		return {
 			dialogVisible: false,
@@ -146,8 +121,8 @@ export default {
 				name: '',
 				phone: '',
 				age: '',
-				sex: '',
-				brithday: '',
+				sex: 0,
+				birthday: '',
 			},
 			rules: {
 				name: [{ required: true, message: '请输入姓名' }],
@@ -194,8 +169,8 @@ export default {
 				},
 			],
 			sexList: [
-				{ id: '0', label: '女' },
-				{ id: '1', label: '男' },
+				{ id: 1, label: '男' },
+				{ id: 2, label: '女' },
 			],
 			modalType: 0,
 			seacher: '',
@@ -217,7 +192,10 @@ export default {
 	},
 	methods: {
 		getList() {
-			this.$store.dispatch('getUserList')
+			this.$store.dispatch('getUserList', {
+				pagenum: this.pageNum,
+				pagesize: this.pageSize
+			})
 		},
 		// 新增
 		handlerNew() {
@@ -225,7 +203,7 @@ export default {
 			this.modalType = 0
 			// 清空验证
 			this.$nextTick().then(() => {
-				this.$refs.form.clearValidate()
+				this.$refs.userForm.clearValidate()
 			})
 			// 清空表单
 			this.form = Object.assign({}, this.form, {
@@ -233,7 +211,7 @@ export default {
 				phone: '',
 				age: '',
 				sex: '',
-				brithday: '',
+				birthday: '',
 			})
 		},
 		// 编辑
@@ -248,8 +226,8 @@ export default {
 			this.$store.dispatch('deleteUser', phone)
 		},
 		// 提交
-		onSubmit() {
-			this.$refs.form.validate((valid) => {
+		submitForm() {
+			this.$refs.userForm.validate((valid) => {
 				if (valid) {
 					if (this.modalType === 0) {
 						// 新增
@@ -260,6 +238,8 @@ export default {
 					// 清除表单数据
 					this.resetForm()
 					this.dialogVisible = false
+				} else {
+					return false
 				}
 			})
 		},

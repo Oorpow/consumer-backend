@@ -15,7 +15,7 @@ export default {
         }
     },
     actions: {
-        async getUserList({ commit }, pagenum = 1, pagesize = 5) {
+        async getUserList({ commit }, { pagenum = 1, pagesize = 5 }) {
             const res = await getUserListByPage(pagenum, pagesize)
             commit('setUserList',{
                 allCount:  res.data.allCount,
@@ -23,9 +23,13 @@ export default {
             })
         },
         async createUser({ dispatch }, form) {
+            console.log(form)
             const res = await createUserByForm(form)
             if (res.data.code === RES_CODE.OK) {
-                dispatch('getUserList')
+                dispatch('getUserList', {
+                    pagenum: 1,
+                    pagesize: 5
+                })
                 notifyMessage(RES_STATUS.SUCCESS, res.data.msg)
             } else {
                 notifyMessage(RES_STATUS.ERROR, res.data.msg)
@@ -34,7 +38,10 @@ export default {
         async updateUser({ dispatch }, form) {
             const res = await updateUserByForm(form)
             if (res.data.code === RES_CODE.OK) {
-                dispatch('getUserList')
+                dispatch('getUserList', {
+                    pagenum: 1,
+                    pagesize: 5
+                })
                 notifyMessage(RES_STATUS.SUCCESS, res.data.data)
             } else {
                 notifyMessage(RES_STATUS.ERROR, res.data.data)
@@ -43,7 +50,10 @@ export default {
         async deleteUser({ dispatch }, phone) {
             const res = await deleteUserByPhone(phone)
             if (res.data.code === RES_CODE.OK) {
-                dispatch('getUserList')
+                dispatch('getUserList', {
+                    pagenum: 1,
+                    pagesize: 5
+                })
                 notifyMessage(RES_STATUS.SUCCESS, res.data.msg)
             } else {
                 notifyMessage(RES_STATUS.ERROR, res.data.msg)
